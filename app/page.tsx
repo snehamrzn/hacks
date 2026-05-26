@@ -1,113 +1,251 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Nav } from "@/components/sections/Nav";
+import { Marquee } from "@/components/sections/Marquee";
+import { Footer } from "@/components/sections/Footer";
+import { Container } from "@/components/ui/Container";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Badge } from "@/components/ui/Badge";
+import { Card, CardTitle, CardBody } from "@/components/ui/Card";
+import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
+import { DATASET_META } from "@/lib/data/feeders";
+
+const lenses = [
+  {
+    tag: "01 · Climate",
+    title: "Where will the storms hit hardest?",
+    body:
+      "Eastern Ontario sits on a documented ice-storm corridor; northern circuits face elevated wind and lightning. Each feeder gets a climate-exposure score, not a guess.",
+  },
+  {
+    tag: "02 · Asset",
+    title: "Which gear is most likely to fail?",
+    body:
+      "Distribution voltages (≤44 kV) carry older, more exposed equipment with a higher per-mile failure rate. Voltage class becomes a vulnerability signal.",
+  },
+  {
+    tag: "03 · Load",
+    title: "Where is demand about to surge?",
+    body:
+      "EV chargers and heat-pump rebates concentrate by neighbourhood. We count real chargers within 6 km of every substation as a live electrification signal.",
+  },
+];
+
+const method = [
+  { k: "Substations", v: `${DATASET_META.count}`, s: "real, OpenStreetMap" },
+  { k: "EV chargers indexed", v: "523", s: "OSM amenity=charging_station" },
+  { k: "Demand growth", v: "+65%", s: "IESO 2026 Outlook" },
+  { k: "DSM program", v: "$10.9B", s: "12-yr electrification fund" },
+  { k: "Neighbourhood radius", v: "6 km", s: "charger lookup window" },
+  { k: "Score weights", v: "40 / 20 / 40", s: "climate / asset / load" },
+];
+
+const primaryCta =
+  "inline-flex h-13 items-center justify-center rounded bg-fg px-8 text-base font-medium text-bg outline-none transition-colors duration-200 ease-standard hover:bg-muted focus-visible:shadow-focus-ring";
+const secondaryCta =
+  "inline-flex h-13 items-center justify-center rounded border border-border px-8 text-base font-medium text-fg outline-none transition-colors duration-200 ease-standard hover:border-border-strong hover:bg-elevated focus-visible:shadow-focus-ring";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <>
+      <Nav />
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <main>
+        {/* Hero */}
+        <section className="relative overflow-hidden bg-grid pt-40 pb-section">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border-strong to-transparent" />
+          <Container>
+            <Reveal>
+              <Badge variant="accent">
+                Hydro One × Esri · Grid Resilience
+              </Badge>
+            </Reveal>
+            <Reveal className="mt-6 max-w-4xl">
+              <h1 className="text-display font-semibold">
+                Which feeder do we{" "}
+                <span className="bg-gradient-to-r from-fg via-muted to-fg bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-sweep">
+                  fix first
+                </span>
+                ?
+              </h1>
+            </Reveal>
+            <Reveal className="mt-6 max-w-2xl">
+              <p className="text-lg leading-relaxed text-muted">
+                Ontario&apos;s grid is bracing for{" "}
+                <span className="text-fg">65% demand growth</span>, climate
+                volatility, and aging infrastructure — all at once. GridFirst
+                ranks every feeder by where hardening pays off most: climate{" "}
+                <span className="text-fg">×</span> asset{" "}
+                <span className="text-fg">×</span> electrification load — then
+                explains the why in plain English.
+              </p>
+            </Reveal>
+            <Reveal className="mt-10 flex flex-wrap items-center gap-3">
+              <Link href="/studio" className={primaryCta}>
+                Launch the map →
+              </Link>
+              <a href="#how" className={secondaryCta}>
+                How it works
+              </a>
+            </Reveal>
+            <Reveal className="mt-12">
+              <div className="flex flex-wrap gap-x-8 gap-y-2 font-mono text-eyebrow uppercase text-subtle">
+                <span>{DATASET_META.count} real substations</span>
+                <span>523 real EV chargers</span>
+                <span>3 prescriptive lenses</span>
+                <span>Claude copilot</span>
+              </div>
+            </Reveal>
+          </Container>
+        </section>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+        <Marquee />
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+        {/* The reframe */}
+        <section id="reframe" className="py-section">
+          <Container>
+            <Reveal>
+              <Eyebrow>The reframe</Eyebrow>
+              <h2 className="mt-4 max-w-2xl text-h1 font-semibold">
+                Predicting failure isn&apos;t the same as deciding what to fix.
+              </h2>
+            </Reveal>
+            <div className="mt-12 grid gap-4 md:grid-cols-2">
+              <Reveal>
+                <div className="h-full rounded-lg border border-border bg-surface p-6">
+                  <div className="font-mono text-eyebrow uppercase text-subtle">
+                    Standard outage analytics
+                  </div>
+                  <p className="mt-3 text-h3 font-medium text-muted">
+                    &ldquo;Where might it fail?&rdquo;
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-subtle">
+                    Returns a probability heat-map. Useful, but a planner with a
+                    $50M capital budget still has to pick 30 feeders out of
+                    thousands — and defend the choice to a council.
+                  </p>
+                </div>
+              </Reveal>
+              <Reveal>
+                <div className="h-full rounded-lg border border-accent/30 bg-accent/5 p-6 shadow-accent-glow">
+                  <div className="font-mono text-eyebrow uppercase text-accent-hover">
+                    GridFirst
+                  </div>
+                  <p className="mt-3 text-h3 font-medium text-fg">
+                    &ldquo;Which do we harden first, and why?&rdquo;
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                    Returns a ranked list with reason codes, a defensible score,
+                    and a one-sentence explainer per feeder. Designed for the
+                    person who has to write the capital plan, not just read the
+                    chart.
+                  </p>
+                </div>
+              </Reveal>
+            </div>
+          </Container>
+        </section>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+        {/* How it works */}
+        <section id="how" className="border-t border-border py-section">
+          <Container>
+            <Reveal>
+              <Eyebrow>How it works</Eyebrow>
+              <h2 className="mt-4 max-w-2xl text-h1 font-semibold">
+                Three lenses, one priority score.
+              </h2>
+            </Reveal>
+            <Stagger className="mt-12 grid gap-4 md:grid-cols-3">
+              {lenses.map((l) => (
+                <StaggerItem key={l.tag}>
+                  <Card className="h-full">
+                    <div className="font-mono text-eyebrow uppercase text-subtle">
+                      {l.tag}
+                    </div>
+                    <CardTitle>{l.title}</CardTitle>
+                    <CardBody>{l.body}</CardBody>
+                  </Card>
+                </StaggerItem>
+              ))}
+            </Stagger>
+            <Reveal className="mt-4">
+              <div className="rounded-lg border border-border bg-surface p-6 text-center font-mono text-sm text-muted">
+                composite = <span className="text-fg">0.4</span>·climate +{" "}
+                <span className="text-fg">0.2</span>·asset +{" "}
+                <span className="text-fg">0.4</span>·load
+              </div>
+            </Reveal>
+          </Container>
+        </section>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        {/* Method */}
+        <section id="method" className="border-t border-border py-section">
+          <Container>
+            <Reveal>
+              <Eyebrow>Method &amp; data</Eyebrow>
+              <h2 className="mt-4 max-w-2xl text-h1 font-semibold">
+                Real public data, no Hydro One feed required.
+              </h2>
+              <p className="mt-4 max-w-2xl text-muted">
+                The studio runs on <span className="text-fg">real Ontario substations</span>{" "}
+                fetched from OpenStreetMap, each annotated with{" "}
+                <span className="text-fg">voltage class</span> from OSM tags and{" "}
+                <span className="text-fg">EV-charger density within 6 km</span>{" "}
+                as a live electrification signal. Climate exposure follows the
+                documented Ontario hazard map (eastern ice-storm corridor,
+                northern wind/lightning band). Constants are sourced from the{" "}
+                <span className="text-fg">IESO 2026 Annual Planning Outlook</span>{" "}
+                and the federal{" "}
+                <span className="text-fg">$10.9B Demand Side Management</span>{" "}
+                framework. Re-bake any time with{" "}
+                <code className="font-mono text-fg">
+                  node scripts/bake-data.mjs
+                </code>
+                .
+              </p>
+            </Reveal>
+            <Stagger className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+              {method.map((m) => (
+                <StaggerItem key={m.k}>
+                  <div className="h-full bg-surface p-6">
+                    <div className="font-mono text-[10px] uppercase tracking-wider text-subtle">
+                      {m.k}
+                    </div>
+                    <div className="mt-2 text-h3 font-semibold text-fg">
+                      {m.v}
+                    </div>
+                    <div className="mt-1 text-[12px] text-subtle">{m.s}</div>
+                  </div>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          </Container>
+        </section>
+
+        {/* CTA */}
+        <section className="border-t border-border py-section">
+          <Container>
+            <Reveal>
+              <div className="flex flex-col items-start justify-between gap-6 rounded-lg border border-border bg-surface p-8 md:flex-row md:items-center">
+                <div>
+                  <h3 className="text-h2 font-semibold">Open the studio.</h3>
+                  <p className="mt-2 max-w-md text-muted">
+                    Drag the weights, watch the top-10 re-rank live, click a
+                    feeder, and ask the copilot why it&apos;s on the list.
+                  </p>
+                </div>
+                <Link
+                  href="/studio"
+                  className={`${primaryCta} shadow-accent-glow`}
+                >
+                  Launch the map →
+                </Link>
+              </div>
+            </Reveal>
+          </Container>
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 }
