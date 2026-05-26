@@ -2,32 +2,103 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: theme("colors.border");
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: theme("colors.bg");
+    color: theme("colors.fg");
+    font-family: theme("fontFamily.sans");
+  }
+
+  ::selection {
+    background: theme("colors.accent");
+    color: theme("colors.fg");
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: theme("colors.bg");
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme("colors.border-strong");
+    border-radius: 9999px;
+    border: 2px solid theme("colors.bg");
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme("colors.subtle");
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: theme("boxShadow.focus-ring");
+    border-radius: theme("borderRadius.sm");
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* ArcGIS view chrome restyled to match Monolith hairline + dark surface aesthetic. */
+.esri-view,
+.esri-view-surface {
+  background-color: theme("colors.bg") !important;
+}
+
+.esri-ui .esri-widget,
+.esri-ui .esri-component {
+  background-color: theme("colors.surface") !important;
+  color: theme("colors.fg") !important;
+  border: 1px solid theme("colors.border") !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+}
+
+.esri-ui .esri-widget--button {
+  background-color: theme("colors.surface") !important;
+  color: theme("colors.fg") !important;
+  border: 1px solid theme("colors.border") !important;
+  border-radius: 10px !important;
+}
+
+.esri-ui .esri-widget--button:hover {
+  background-color: theme("colors.elevated") !important;
+  border-color: theme("colors.border-strong") !important;
+}
+
+.esri-attribution {
+  background-color: rgba(10, 10, 10, 0.7) !important;
+  color: theme("colors.subtle") !important;
+  font-family: theme("fontFamily.mono") !important;
+  font-size: 10px !important;
+  letter-spacing: 0.05em;
+}
+
+.esri-popup__main-container {
+  background-color: theme("colors.surface") !important;
+  color: theme("colors.fg") !important;
+  border: 1px solid theme("colors.border") !important;
+  border-radius: 16px !important;
 }
