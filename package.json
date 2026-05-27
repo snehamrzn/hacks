@@ -12,7 +12,7 @@
     "@anthropic-ai/sdk": "^0.98.0",
     "@arcgis/core": "^4.34.8",
     "framer-motion": "^11.18.2",
-    "next": "^14.2.30",
+    "next": "^16.2.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

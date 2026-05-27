@@ -240,9 +240,9 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
               text: f.name,
               color: "#FFFFFF",
               haloColor: "#000000",
-              haloSize: 3,
-              font: { family: "Inter", size: 12, weight: "600" },
-              yoffset: yOff,
+              haloSize: 2,
+              font: { family: "Inter", size: 11, weight: "600" },
+              yoffset: -(16 + f.composite * 14),
             } as any,
           });
           layerRef.current.add(rankBadge);

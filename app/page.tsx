@@ -14,19 +14,19 @@ const lenses = [
     tag: "01 · Climate",
     title: "Where will the storms hit hardest?",
     body:
-      "Eastern Ontario sits on a documented ice-storm corridor; northern circuits face elevated wind and lightning. Each feeder gets a climate-exposure score, not a guess.",
+      "Eastern Ontario sits on the documented 1998 ice-storm corridor. Northern circuits face elevated wind and lightning above latitude 47.5°N. Each feeder gets a real climate-exposure score from Ontario hazard geography — not a guess.",
   },
   {
     tag: "02 · Asset",
-    title: "Which gear is most likely to fail?",
+    title: "Which equipment is most likely to fail?",
     body:
-      "Distribution voltages (≤44 kV) carry older, more exposed equipment with a higher per-mile failure rate. Voltage class becomes a vulnerability signal.",
+      "Over 80% of consumer disruptions trace back to distribution failures. Distribution feeders run at lower voltages and higher currents — more sensitive to faults, and built in a radial structure where one failure cascades downstream. Voltage class is the vulnerability signal.",
   },
   {
     tag: "03 · Load",
     title: "Where is demand about to surge?",
     body:
-      "EV chargers and heat-pump rebates concentrate by neighbourhood. We count real chargers within 6 km of every substation as a live electrification signal.",
+      "EVs and heat pumps are concentrating new load by neighbourhood — onto feeders not built for it. IESO projects 65% demand growth by 2035. We count real EV chargers within 6 km of every substation as a live electrification pressure signal.",
   },
 ];
 
@@ -34,8 +34,8 @@ const method = [
   { k: "Substations", v: `${DATASET_META.count}`, s: "real, OpenStreetMap" },
   { k: "EV chargers indexed", v: "523", s: "OSM amenity=charging_station" },
   { k: "Demand growth", v: "+65%", s: "IESO 2026 Outlook" },
-  { k: "DSM program", v: "$10.9B", s: "12-yr electrification fund" },
-  { k: "Neighbourhood radius", v: "6 km", s: "charger lookup window" },
+  { k: "Distribution companies", v: "59", s: "Ontario LDCs" },
+  { k: "Overhead infrastructure", v: "73%", s: "Ontario distribution km" },
   { k: "Score weights", v: "40 / 20 / 40", s: "climate / asset / load" },
 ];
 
@@ -70,9 +70,11 @@ export default function Home() {
             </Reveal>
             <Reveal className="mt-6 max-w-2xl">
               <p className="text-lg leading-relaxed text-muted">
-                Ontario&apos;s grid is bracing for{" "}
-                <span className="text-fg">65% demand growth</span>, climate
-                volatility, and aging infrastructure — all at once. GridFirst
+                Ontario has{" "}
+                <span className="text-fg">59 local distribution companies</span>{" "}
+                managing hundreds of feeders — aging overhead infrastructure now
+                facing <span className="text-fg">65% demand growth</span>,
+                worsening climate events, and a finite capital budget. GridFirst
                 ranks every feeder by where hardening pays off most: climate{" "}
                 <span className="text-fg">×</span> asset{" "}
                 <span className="text-fg">×</span> electrification load — then
@@ -113,15 +115,19 @@ export default function Home() {
               <Reveal>
                 <div className="h-full rounded-lg border border-border bg-surface p-6">
                   <div className="font-mono text-eyebrow uppercase text-subtle">
-                    Standard outage analytics
+                    Reactive maintenance today
                   </div>
                   <p className="mt-3 text-h3 font-medium text-muted">
-                    &ldquo;Where might it fail?&rdquo;
+                    &ldquo;Fix what just broke.&rdquo;
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-subtle">
-                    Returns a probability heat-map. Useful, but a planner with a
-                    $50M capital budget still has to pick 30 feeders out of
-                    thousands — and defend the choice to a council.
+                    Reactive repair costs{" "}
+                    <span className="text-fg font-medium">2–5× more</span> than
+                    planned maintenance. Emergency crews, overtime, regulatory
+                    penalties, and cascading outages compound every missed
+                    upgrade. The highest-risk feeders go unaddressed until they
+                    fail — and a planner with a $50M capital budget still has no
+                    defensible answer to which 30 feeders to harden first.
                   </p>
                 </div>
               </Reveal>
@@ -134,10 +140,11 @@ export default function Home() {
                     &ldquo;Which do we harden first, and why?&rdquo;
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-muted">
-                    Returns a ranked list with reason codes, a defensible score,
-                    and a one-sentence explainer per feeder. Designed for the
-                    person who has to write the capital plan, not just read the
-                    chart.
+                    Returns a ranked list with reason codes, a defensible
+                    composite score, and a one-sentence Claude-generated
+                    explainer per feeder. Designed for the capital planner who
+                    has to write the OEB submission — not just read the
+                    probability chart.
                   </p>
                 </div>
               </Reveal>
@@ -169,9 +176,66 @@ export default function Home() {
             </Stagger>
             <Reveal className="mt-4">
               <div className="rounded-lg border border-border bg-surface p-6 text-center font-mono text-sm text-muted">
-                composite = <span className="text-fg">0.4</span>·climate +{" "}
+                composite ={" "}
+                <span className="text-fg">0.4</span>·climate +{" "}
                 <span className="text-fg">0.2</span>·asset +{" "}
                 <span className="text-fg">0.4</span>·load
+                <span className="ml-4 text-subtle">
+                  · weights adjustable in the studio
+                </span>
+              </div>
+            </Reveal>
+          </Container>
+        </section>
+
+        {/* The copilot */}
+        <section id="copilot" className="border-t border-border py-section">
+          <Container>
+            <Reveal>
+              <Eyebrow>AI explainability</Eyebrow>
+              <h2 className="mt-4 max-w-2xl text-h1 font-semibold">
+                Rankings that explain themselves.
+              </h2>
+              <p className="mt-4 max-w-2xl text-muted">
+                Every feeder in the top-10 panel has a Claude-powered copilot
+                explanation. Click a feeder and the copilot returns three
+                structured lines — the dominant risk driver with a concrete
+                number, the specific failure mode, and the recommended hardening
+                action. Written in the language a capital planner or OEB
+                submission actually uses.
+              </p>
+            </Reveal>
+            <Reveal className="mt-10">
+              <div className="rounded-lg border border-border bg-surface p-6 font-mono text-sm">
+                <div className="mb-4 font-mono text-[10px] uppercase tracking-wider text-subtle">
+                  Example · Russell TS · Eastern Ontario · 115 kV
+                </div>
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <span className="shrink-0 text-accent-hover">Driver</span>
+                    <span className="text-muted">
+                      Climate exposure score 85/100 — sits on Ontario&apos;s
+                      documented eastern ice-storm corridor with 28 EV chargers
+                      within 6 km adding surge pressure.
+                    </span>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="shrink-0 text-accent-hover">Risk</span>
+                    <span className="text-muted">
+                      Overhead conductors in the corridor are vulnerable to ice
+                      loading failures; radial structure means a single span
+                      failure blacks out the downstream neighbourhood.
+                    </span>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="shrink-0 text-accent-hover">Action</span>
+                    <span className="text-muted">
+                      Prioritise conductor replacement and sectionalising switch
+                      installation on the eastern 3 km span before next ice
+                      season.
+                    </span>
+                  </div>
+                </div>
               </div>
             </Reveal>
           </Container>
@@ -186,17 +250,23 @@ export default function Home() {
                 Real public data, no Hydro One feed required.
               </h2>
               <p className="mt-4 max-w-2xl text-muted">
-                The studio runs on <span className="text-fg">real Ontario substations</span>{" "}
-                fetched from OpenStreetMap, each annotated with{" "}
-                <span className="text-fg">voltage class</span> from OSM tags and{" "}
+                The studio runs on{" "}
+                <span className="text-fg">real Ontario substations</span>{" "}
+                fetched from OpenStreetMap via the Overpass API, each annotated
+                with <span className="text-fg">voltage class</span> from OSM
+                tags and{" "}
                 <span className="text-fg">EV-charger density within 6 km</span>{" "}
                 as a live electrification signal. Climate exposure follows the
                 documented Ontario hazard map (eastern ice-storm corridor,
-                northern wind/lightning band). Constants are sourced from the{" "}
+                northern wind/lightning band above 47.5°N). Constants are
+                sourced from the{" "}
                 <span className="text-fg">IESO 2026 Annual Planning Outlook</span>{" "}
-                and the federal{" "}
-                <span className="text-fg">$10.9B Demand Side Management</span>{" "}
-                framework. Re-bake any time with{" "}
+                and the{" "}
+                <span className="text-fg">
+                  Fall 2023 Vulnerability Assessment for Ontario&apos;s
+                  Electricity Distribution Sector
+                </span>
+                . Refresh any time with{" "}
                 <code className="font-mono text-fg">
                   node scripts/bake-data.mjs
                 </code>
@@ -227,15 +297,23 @@ export default function Home() {
             <Reveal>
               <div className="flex flex-col items-start justify-between gap-6 rounded-lg border border-border bg-surface p-8 md:flex-row md:items-center">
                 <div>
-                  <h3 className="text-h2 font-semibold">Open the studio.</h3>
-                  <p className="mt-2 max-w-md text-muted">
-                    Drag the weights, watch the top-10 re-rank live, click a
-                    feeder, and ask the copilot why it&apos;s on the list.
+                  <h3 className="text-h2 font-semibold">
+                    The infrastructure problem is documented.
+                    <br />
+                    The cost of inaction is proven.
+                  </h3>
+                  <p className="mt-2 max-w-xl text-muted">
+                    Ontario&apos;s grid is failing feeder by feeder, storm by
+                    storm — in a province where 73% of distribution
+                    infrastructure is overhead, aging, and increasingly stressed
+                    by electrification. GridFirst turns &ldquo;where do we spend
+                    first?&rdquo; from a judgment call into a ranked, explainable,
+                    data-backed answer in the language the OEB already speaks.
                   </p>
                 </div>
                 <Link
                   href="/studio"
-                  className={`${primaryCta} shadow-accent-glow`}
+                  className={`${primaryCta} shadow-accent-glow whitespace-nowrap`}
                 >
                   Launch the map →
                 </Link>
