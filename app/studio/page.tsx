@@ -62,7 +62,7 @@ function Header() {
           href="/"
           className="font-mono text-sm font-medium tracking-tight text-fg transition-colors hover:text-muted"
         >
-          ◆ GRIDFIRST
+          ◆ ARCLIGHT
         </a>
         <span className="hidden text-sm text-muted md:inline">
           Ontario grid hardening — ranked by climate, asset, and electrification load.

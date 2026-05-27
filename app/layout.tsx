@@ -16,7 +16,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GridFirst — which feeder to fix first",
+  title: "Arclight — which feeder to fix first",
   description:
     "A geospatial decision engine that fuses climate exposure, asset vulnerability, and Ontario electrification load growth to rank grid feeders by where hardening pays off most.",
 };

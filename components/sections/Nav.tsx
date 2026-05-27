@@ -32,7 +32,7 @@ export function Nav() {
     >
       <Container className="flex h-16 items-center justify-between">
         <Link href="/" className="font-mono text-sm font-medium tracking-tight">
-          ◆ GRIDFIRST
+          ◆ ARCLIGHT
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((l) => (

@@ -30,7 +30,7 @@ export function Footer() {
     <footer className="border-t border-border">
       <Container className="grid gap-12 py-16 md:grid-cols-[1.5fr_repeat(3,1fr)]">
         <div>
-          <div className="font-mono text-sm font-medium">◆ GRIDFIRST</div>
+          <div className="font-mono text-sm font-medium">◆ ARCLIGHT</div>
           <p className="mt-3 max-w-xs text-sm text-subtle">
             A geospatial decision engine that ranks Ontario&apos;s grid feeders by
             where hardening pays off most — fusing climate exposure, asset
@@ -54,7 +54,7 @@ export function Footer() {
         ))}
       </Container>
       <Container className="flex flex-col items-start justify-between gap-4 border-t border-border py-6 text-eyebrow text-subtle md:flex-row md:items-center">
-        <span className="font-mono uppercase">GridFirst · Prototype</span>
+        <span className="font-mono uppercase">Arclight · Prototype</span>
         <span className="font-mono uppercase">
           Real OSM data · climate / asset scores are heuristics
         </span>

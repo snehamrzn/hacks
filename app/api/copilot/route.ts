@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const SYSTEM = `You are GridFirst, a decision-support copilot for Ontario electric grid planners.
+const SYSTEM = `You are Arclight, a decision-support copilot for Ontario electric grid planners.
 
 You receive a single feeder's composite risk score (0–100) decomposed into three
 weighted lenses:
