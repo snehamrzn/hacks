@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Agentation } from "agentation";
 import "./globals.css";
 
 const sans = Inter({
@@ -27,7 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body className="bg-bg text-fg antialiased">{children}</body>
+      <body className="bg-bg text-fg antialiased">
+        {children}
+        {process.env.NODE_ENV === "development" && <Agentation />}
+      </body>
     </html>
   );
 }

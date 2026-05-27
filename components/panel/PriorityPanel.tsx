@@ -7,10 +7,18 @@ import { cn } from "@/lib/cn";
 import { easeExpoOut } from "@/lib/motion";
 import type { ReasonCode, ScoredFeeder } from "@/lib/scoring";
 
+function tierColor(composite: number): string {
+  if (composite >= 0.75) return "#DC2626"; // critical
+  if (composite >= 0.6) return "#F97316"; // high
+  if (composite >= 0.45) return "#F59E0B"; // elevated
+  if (composite >= 0.3) return "#84CC16"; // moderate
+  return "#22C55E"; // low
+}
+
 type Props = {
   feeders: ScoredFeeder[];
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | null) => void;
 };
 
 export function PriorityPanel({ feeders, selectedId, onSelect }: Props) {
@@ -40,7 +48,7 @@ export function PriorityPanel({ feeders, selectedId, onSelect }: Props) {
                   rank={i + 1}
                   feeder={f}
                   selected={f.id === selectedId}
-                  onClick={() => onSelect(f.id)}
+                  onClick={() => onSelect(f.id === selectedId ? null : f.id)}
                 />
               </motion.li>
             ))}
@@ -62,61 +70,107 @@ function FeederRow({
   selected: boolean;
   onClick: () => void;
 }) {
+  const dotColor = tierColor(feeder.composite);
   return (
     <button
       onClick={onClick}
+      aria-expanded={selected}
       className={cn(
-        "group block w-full rounded-lg border bg-surface px-5 py-4 text-left",
+        "group block w-full rounded-lg border bg-surface px-4 py-3 text-left",
         "transition-colors duration-200 ease-standard",
         selected
-          ? "border-accent/60 bg-elevated"
+          ? "border-border-strong bg-elevated"
           : "border-border hover:border-border-strong hover:bg-elevated"
       )}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="mt-1 font-mono text-eyebrow tracking-[0.15em] text-subtle">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-white/30"
+            style={{ backgroundColor: dotColor }}
+            aria-hidden
+          />
+          <span className="font-mono text-eyebrow tracking-[0.15em] text-subtle">
             #{String(rank).padStart(2, "0")}
           </span>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-fg">{feeder.name}</div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-eyebrow uppercase tracking-[0.15em] text-subtle">
-              <span>{feeder.region}</span>
-              {typeof feeder.voltageKv === "number" && feeder.voltageKv > 0 && (
-                <>
-                  <span aria-hidden className="text-border-strong">·</span>
-                  <span>{feeder.voltageKv} kV</span>
-                </>
-              )}
-              {typeof feeder.chargersNearby === "number" && (
-                <>
-                  <span aria-hidden className="text-border-strong">·</span>
-                  <span>{feeder.chargersNearby} EV</span>
-                </>
-              )}
-            </div>
-          </div>
+          <span className="truncate text-sm font-medium text-fg">{feeder.name}</span>
         </div>
-        <div className="shrink-0 text-right">
-          <div className="font-mono text-lg font-semibold leading-none tabular-nums text-fg">
+        <div className="flex shrink-0 items-baseline gap-1.5">
+          <span className="font-mono text-base font-semibold leading-none tabular-nums text-fg">
             {(feeder.composite * 100).toFixed(0)}
-          </div>
-          <div className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.15em] text-subtle">
-            score
-          </div>
+          </span>
+          <span className="font-mono text-[0.6rem] uppercase tracking-[0.15em] text-subtle">
+            /100
+          </span>
+          <Chevron open={selected} />
         </div>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2.5">
-        <ScoreBar label="Climate exposure" value={feeder.hazard} />
-        <ScoreBar label="Asset vulnerability" value={feeder.asset} />
-        <ScoreBar label="Load growth" value={feeder.loadDelta} />
-      </div>
+      <AnimatePresence initial={false}>
+        {selected && (
+          <motion.div
+            key="expanded"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.32, ease: easeExpoOut }}
+            className="overflow-hidden"
+          >
+            <div className="pt-4">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-eyebrow uppercase tracking-[0.15em] text-subtle">
+                <span>{feeder.region}</span>
+                {typeof feeder.voltageKv === "number" && feeder.voltageKv > 0 && (
+                  <>
+                    <span aria-hidden className="text-border-strong">·</span>
+                    <span>{feeder.voltageKv} kV</span>
+                  </>
+                )}
+                {typeof feeder.chargersNearby === "number" && (
+                  <>
+                    <span aria-hidden className="text-border-strong">·</span>
+                    <span>{feeder.chargersNearby} EV</span>
+                  </>
+                )}
+              </div>
 
-      <div className="mt-5">
-        <ReasonChip reason={feeder.reason} />
-      </div>
+              <div className="mt-4 flex flex-col gap-2.5">
+                <ScoreBar label="Climate exposure" value={feeder.hazard} />
+                <ScoreBar label="Asset vulnerability" value={feeder.asset} />
+                <ScoreBar label="Load growth" value={feeder.loadDelta} />
+              </div>
+
+              <div className="mt-4">
+                <ReasonChip reason={feeder.reason} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </button>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden
+      className={cn(
+        "ml-1 text-subtle transition-transform duration-200 ease-standard",
+        open && "rotate-180"
+      )}
+    >
+      <path
+        d="M2 4l3 3 3-3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

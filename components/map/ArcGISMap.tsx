@@ -35,6 +35,7 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [hover, setHover] = useState<Hover | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   // Initialize map once.
   useEffect(() => {
@@ -136,7 +137,12 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
 
       if (cancelled) {
         view.destroy();
+        return;
       }
+
+      // Signal that the layer is ready so the render effect can paint
+      // graphics immediately, rather than waiting for the next prop change.
+      setMapReady(true);
     }
 
     init();
@@ -150,8 +156,9 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
     };
   }, []);
 
-  // Re-render graphics whenever scored feeders change.
+  // Re-render graphics whenever scored feeders change OR the map becomes ready.
   useEffect(() => {
+    if (!mapReady) return;
     let cancelled = false;
     async function render() {
       if (!layerRef.current) return;
@@ -171,6 +178,8 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
         const score100 = Math.round(f.composite * 100);
         const reasonLabel = REASON_LABEL[f.reason] ?? f.reason;
 
+        const tier = tierForScore(f.composite);
+
         const dot = new Graphic({
           geometry: new Point({ longitude: f.lng, latitude: f.lat }),
           attributes: {
@@ -185,10 +194,10 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
           },
           symbol: {
             type: "simple-marker",
-            color: colorForScore(f.composite),
-            size: 8 + f.composite * 22,
+            color: [...tier.rgb, 0.92] as any,
+            size: 10 + f.composite * 22,
             outline: {
-              color: isSelected ? "#FFFFFF" : "rgba(255,255,255,0.35)",
+              color: isSelected ? "#FFFFFF" : "rgba(255,255,255,0.5)",
               width: isSelected ? 2.5 : 1,
             },
           } as any,
@@ -211,19 +220,33 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
         layerRef.current.add(dot);
 
         if (isTop) {
-          const label = new Graphic({
+          const yOff = -(20 + f.composite * 14);
+          const rankBadge = new Graphic({
             geometry: new Point({ longitude: f.lng, latitude: f.lat }),
             symbol: {
               type: "text",
-              text: `#${i + 1}  ${f.name}`,
+              text: `#${String(i + 1).padStart(2, "0")}`,
               color: "#FFFFFF",
               haloColor: "#000000",
-              haloSize: 2,
-              font: { family: "Inter", size: 11, weight: "600" },
-              yoffset: -(16 + f.composite * 14),
+              haloSize: 3,
+              font: { family: "JetBrains Mono", size: 13, weight: "700" },
+              yoffset: yOff + 14,
             } as any,
           });
-          layerRef.current.add(label);
+          const nameLabel = new Graphic({
+            geometry: new Point({ longitude: f.lng, latitude: f.lat }),
+            symbol: {
+              type: "text",
+              text: f.name,
+              color: "#FFFFFF",
+              haloColor: "#000000",
+              haloSize: 3,
+              font: { family: "Inter", size: 12, weight: "600" },
+              yoffset: yOff,
+            } as any,
+          });
+          layerRef.current.add(rankBadge);
+          layerRef.current.add(nameLabel);
         }
       }
     }
@@ -231,7 +254,7 @@ export function ArcGISMap({ feeders, selectedId, onSelect }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [feeders, selectedId]);
+  }, [feeders, selectedId, mapReady]);
 
   // Pan to selected feeder.
   useEffect(() => {
@@ -298,14 +321,27 @@ const REASON_LABEL: Record<string, string> = {
   both: "Climate + Load",
 };
 
-/** Ramp from subtle (#71717A, low risk) → accent (#2D7FF9, high risk). */
-function colorForScore(s: number): [number, number, number, number] {
-  const lo = [113, 113, 122];
-  const hi = [45, 127, 249];
-  const r = Math.round(lo[0] + (hi[0] - lo[0]) * s);
-  const g = Math.round(lo[1] + (hi[1] - lo[1]) * s);
-  const b = Math.round(lo[2] + (hi[2] - lo[2]) * s);
-  return [r, g, b, 0.9];
+type Tier = {
+  label: string;
+  range: string;
+  rgb: [number, number, number];
+  hex: string;
+};
+
+const TIERS: Tier[] = [
+  { label: "Critical", range: "≥ 75", rgb: [220, 38, 38], hex: "#DC2626" },
+  { label: "High", range: "60 – 75", rgb: [249, 115, 22], hex: "#F97316" },
+  { label: "Elevated", range: "45 – 60", rgb: [245, 158, 11], hex: "#F59E0B" },
+  { label: "Moderate", range: "30 – 45", rgb: [132, 204, 22], hex: "#84CC16" },
+  { label: "Low", range: "< 30", rgb: [34, 197, 94], hex: "#22C55E" },
+];
+
+function tierForScore(s: number): Tier {
+  if (s >= 0.75) return TIERS[0];
+  if (s >= 0.6) return TIERS[1];
+  if (s >= 0.45) return TIERS[2];
+  if (s >= 0.3) return TIERS[3];
+  return TIERS[4];
 }
 
 async function buildOsmDarkBasemap(Basemap: any) {
@@ -321,19 +357,26 @@ async function buildOsmDarkBasemap(Basemap: any) {
 
 function Legend() {
   return (
-    <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg border border-border bg-surface/90 px-3 py-2 font-mono text-eyebrow uppercase text-subtle backdrop-blur">
-      <div className="mb-1.5 tracking-[0.15em]">Composite Risk</div>
-      <div className="flex items-center gap-2">
-        <span className="text-subtle">Low</span>
-        <span
-          className="h-1.5 w-32 rounded-full"
-          style={{
-            background:
-              "linear-gradient(to right, rgb(113,113,122), rgb(45,127,249))",
-          }}
-        />
-        <span className="text-accent-hover">High</span>
+    <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg border border-border bg-surface/90 px-3 py-2.5 font-mono backdrop-blur">
+      <div className="mb-2 text-eyebrow uppercase tracking-[0.15em] text-subtle">
+        Composite Risk
       </div>
+      <ul className="flex flex-col gap-1.5">
+        {TIERS.map((t) => (
+          <li key={t.label} className="flex items-center gap-3">
+            <span
+              className="h-2.5 w-2.5 rounded-full ring-1 ring-white/40"
+              style={{ backgroundColor: t.hex }}
+            />
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-fg">
+              {t.label}
+            </span>
+            <span className="ml-auto pl-3 text-eyebrow uppercase tracking-[0.15em] text-subtle">
+              {t.range}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -28,21 +28,26 @@ export default function Home() {
     <main className="flex h-dvh flex-col bg-bg text-fg">
       <Header />
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 px-5 pb-5 lg:grid-cols-[1fr_25rem] xl:grid-cols-[1fr_27rem]">
-        <section className="min-h-0">
+        <section className="relative min-h-0">
           <ArcGISMap
             feeders={scored}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
+          <CopilotPanel
+            feeder={selected}
+            onClose={() => setSelectedId(null)}
+          />
         </section>
         <section className="flex min-h-0 flex-col gap-4 overflow-hidden">
           <WeightSliders weights={weights} onChange={setWeights} />
-          <PriorityPanel
-            feeders={scored}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-          />
-          <CopilotPanel feeder={selected} />
+          <div className="min-h-0 flex-1">
+            <PriorityPanel
+              feeders={scored}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          </div>
         </section>
       </div>
     </main>
